@@ -59,5 +59,50 @@ public class EmployeeControllerIT {
 		result.andExpect(jsonPath("$.name").value("Joaquim"));
 		result.andExpect(jsonPath("$.email").value("joaquim@gmail.com"));
 		result.andExpect(jsonPath("$.departmentId").value(1L));
-	}	
+	}
+
+	@Test
+	public void findByIdShouldReturnEmployeeWhenIdExists () throws Exception {
+
+		ResultActions result = mockMvc.perform(get("/employees/1")
+				.contentType(MediaType.APPLICATION_JSON));
+		result.andExpect(status().isOk());
+		result.andExpect(jsonPath("$.id").value(1L));
+		result.andExpect(jsonPath("$.name").value("Alex"));
+
+	}
+
+	@Test
+
+	public void findByIdShouldReturnNotFoundWhenIdNotExists () throws Exception {
+
+		ResultActions result = mockMvc.perform(get("/employees/999")
+				.contentType(MediaType.APPLICATION_JSON));
+
+		result.andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void insertShouldReturnBadRequestWhenInvalidData() throws Exception {
+
+		EmployeeDTO dto = new EmployeeDTO(null,"thiago", "tpsousa.eng@gmail,com",1L);
+		String jsonBody = objectMapper.writeValueAsString(dto);
+
+		ResultActions result = mockMvc.perform(post("/employees")
+				.content(jsonBody)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+		);
+
+		result.andExpect(status().isBadRequest());
+
+		//normalmente temos testes separados
+
+		/*
+		 insertShouldReturnBadRequestWhenInvalidEmail()
+         insertShouldReturnBadRequestWhenNameIsBlank()
+         insertShouldReturnBadRequestWhenDepartmentDoesNotExist()
+         insertShouldReturnBadRequestWhenEmailAlreadyExists()
+		* */
+	}
 }
